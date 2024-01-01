@@ -4,6 +4,7 @@ import (
 	"github.com/Prudence/pkg/precog/core/network/txpool"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -45,7 +46,9 @@ type txPool interface {
 }
 
 type API interface {
+	Engine() consensus.Engine
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	SubToPendingTx(ch chan<- core.NewTxsEvent) event.Subscription
 	CurrentStateAndHeader() (stateDb *state.StateDB, header *types.Header, err error)
+	GetHeader(common.Hash, uint64) *types.Header
 }

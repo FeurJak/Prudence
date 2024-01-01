@@ -6,6 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -36,8 +37,12 @@ func (a *api) CurrentStateAndHeader() (stateDb *state.StateDB, header *types.Hea
 	return
 }
 
-func (a *api) GetEVM() {
+func (a *api) GetHeader(hash common.Hash, number uint64) *types.Header {
+	return a.b.GetHeader(hash, number)
+}
 
+func (a *api) Engine() consensus.Engine {
+	return a.b.engine
 }
 
 // OverrideAccount indicates the overriding fields of account during the execution
@@ -102,61 +107,5 @@ To-DO:
   - add timeout ctx
 
 func (a *API) Call(ctx context.Context, txMsg ethereum.CallMsg, blockHash common.Hash, blockNumber uint64, satetOverride *StateOverride) (*pCore.ExecutionResult, error) {
-
-	// get Header
-	header := a.b.GetHeader(blockHash, blockNumber)
-	if header == nil {
-		return nil, fmt.Errorf("header not found")
-	}
-
-	// get state
-	state, err := a.b.StateAt(header.Root)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := satetOverride.Apply(state); err != nil {
-		return nil, err
-	}
-
-	msg := &pCore.Message{
-		From:              txMsg.From,
-		To:                txMsg.To,
-		Value:             txMsg.Value,
-		GasLimit:          txMsg.Gas,
-		GasPrice:          txMsg.GasPrice,
-		GasFeeCap:         txMsg.GasFeeCap,
-		GasTipCap:         txMsg.GasTipCap,
-		Data:              txMsg.Data,
-		AccessList:        txMsg.AccessList,
-		SkipAccountChecks: true,
-	}
-
-	// Get a new instance of the EVM.
-	evm := vm_default.NewEVM(
-		vm_default.NewEVMBlockContext(header, a.b, nil), //blockCtx
-		vm_default.NewEVMTxContext(msg),                 //txCtx
-		state,                                           //stateDb
-		params.MainnetChainConfig,
-		vm_default.Config{})
-
-	// Wait for the context to be done and cancel the evm. Even if the
-	// EVM has finished, cancelling may be done (repeatedly)
-	go func() {
-		<-ctx.Done()
-		evm.Cancel()
-	}()
-
-	gp := new(pCore.GasPool).AddGas(math.MaxUint64)
-	result, err := pCore.ApplyMessage(evm, msg, gp)
-	if err := state.Error(); err != nil {
-		return nil, err
-	}
-
-	if err != nil {
-		return result, fmt.Errorf("err: %w (supplied gas %d)", err, msg.GasLimit)
-	}
-	return result, nil
 }
-
 */
