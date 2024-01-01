@@ -16,6 +16,17 @@ import (
 
 	- Connect To Peers
 	- Get Mempool % Coverage over time
+
+	run: go build && ./1_1_2024 run "connection string", i.e IPC Path
+
+	Context:
+	Although the P2P stack is independent, precog still relies on state access.
+	State access can be done in two ways:
+		1. Accessing state from disk
+		2. Accessing state from a remote geth node
+
+	This lab uses remote state access, which means that precog will connect to a geth node
+	However, make sure that your node is running in Archive Node
 */
 
 var lab = labs.NewLab("lab_1_1_2024")
