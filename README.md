@@ -1,2 +1,2 @@
 # Prudence
-Lab
+Tools & Labs
