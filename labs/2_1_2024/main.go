@@ -17,7 +17,10 @@ import (
 	- Prepare EVM with specified state
 	- Get ERC20 Token Meta
 
-	run: go build && ./2_1_2024 run "connection string", i.e IPC Path
+	run: go build && ./2_1_2024 run "connection string" "token address" "base token address" "factory address" "router address"
+	i.e. go build && ./2_1_2024 run geth.ipc 0x1673AB963C825402596F63e3d1Ef2c2966aa5340 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
+
+	i.e connection string --> rpc URL or IPC Path
 
 	Context:
 	Although the P2P stack is independent, precog still relies on state access.

@@ -48,10 +48,10 @@ func runCmd(ctx *cli.Context) error {
 		panic("failed to init backend, err: " + err.Error())
 	}
 
-	tokenAddr := common.HexToAddress("0x1673AB963C825402596F63e3d1Ef2c2966aa5340")
-	baseTokenAddr := common.HexToAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-	factoryAddr := common.HexToAddress("0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f")
-	routerAddr := common.HexToAddress("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
+	tokenAddr := common.HexToAddress(ctx.Args().Get(1))
+	baseTokenAddr := common.HexToAddress(ctx.Args().Get(2))
+	factoryAddr := common.HexToAddress(ctx.Args().Get(3))
+	routerAddr := common.HexToAddress(ctx.Args().Get(4))
 
 	// Get Latest State
 	state, header, err := psi.CurrentStateAndHeader()
@@ -100,6 +100,5 @@ func runCmd(ctx *cli.Context) error {
 		"Rb":            meta.ReserveB,
 	}).Info("got ERC20 Meta")
 
-	//labs.Logger.Infof("ERC20 Meta: %+v", meta)
 	return nil
 }
