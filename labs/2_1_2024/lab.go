@@ -87,6 +87,8 @@ func runCmd(ctx *cli.Context) error {
 		"Name":          meta.Name,
 		"Owner":         meta.Owner,
 		"BlockDelay":    meta.BlockDelay,
+		"CanBuy":        meta.CanBuy,
+		"CanSell":       meta.CanSell,
 		"BuyTax":        meta.BuyTax,
 		"SellTax":       meta.SellTax,
 		"MaxWallet":     meta.MaxWalletSize,
