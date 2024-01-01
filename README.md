@@ -1,5 +1,22 @@
 # Prudence Labs
 
+## Packages: 
+
+### ABI: 
+
+Just a stripped down geth ABI pkg, so you can easily interface with Contract functions. 
+
+### GETH_CLI: 
+
+RPC interface for GETH node. 
+
+### Precog: 
+
+General backend for connecting to the P2P network (i.e. geth peers, mempool txs) and remote state access (either via IPC / RPC or disk access). 
+
+### SVE 
+Sustainable Virtual Economies (SVE). Don't ask me about it.
+
 ## Lab 1 / 1 / 2024
 
 Test P2P Network. 
