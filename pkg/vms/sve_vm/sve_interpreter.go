@@ -179,7 +179,7 @@ func (in *EVMInterpreter) LiteRun(contract interface{}, input []byte, readOnly b
 	return res, &Debug{pc: pc, stack: stack}, err
 }
 
-func (in *EVMInterpreter) ScanFor(contract *Contract, input []byte, readOnly bool, value *uint256.Int) (loc uint64, res []byte, err error) {
+func (in *EVMInterpreter) ScanFor(contract interface{}, input []byte, readOnly bool, value *uint256.Int) (loc uint64, res []byte, err error) {
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
 	defer func() { in.evm.depth-- }()
@@ -196,7 +196,7 @@ func (in *EVMInterpreter) ScanFor(contract *Contract, input []byte, readOnly boo
 	in.returnData = nil
 
 	// Don't bother with the execution if there's no code.
-	if len(contract.Code) == 0 {
+	if len(contract.(*Contract).Code) == 0 {
 		return 0, nil, nil
 	}
 
@@ -211,7 +211,7 @@ func (in *EVMInterpreter) ScanFor(contract *Contract, input []byte, readOnly boo
 		callContext = &ScopeContext{
 			Memory:   mem,
 			Stack:    stack,
-			Contract: contract,
+			Contract: contract.(*Contract),
 		}
 		// For optimisation reason we're using uint64 as the program counter.
 		// It's theoretically possible to go above 2^64. The YP defines the PC
@@ -224,7 +224,7 @@ func (in *EVMInterpreter) ScanFor(contract *Contract, input []byte, readOnly boo
 	defer func() {
 		returnStack(stack)
 	}()
-	contract.Input = input
+	contract.(*Contract).Input = input
 
 	// The Interpreter main run loop (contextual). This loop runs until either an
 	// explicit STOP, RETURN or SELFDESTRUCT is executed, an error occurred during
@@ -233,7 +233,7 @@ func (in *EVMInterpreter) ScanFor(contract *Contract, input []byte, readOnly boo
 	for {
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
-		op = contract.GetOp(pc)
+		op = contract.(*Contract).GetOp(pc)
 		operation := in.table[op]
 		// Validate stack
 		if sLen := stack.len(); sLen < operation.minStack {
@@ -292,7 +292,7 @@ func (in *EVMInterpreter) ScanFor(contract *Contract, input []byte, readOnly boo
 	return
 }
 
-func (in *EVMInterpreter) ScanForMultiple(contract *Contract, input []byte, readOnly bool, values map[string]bool) (loc map[string][]uint64, res []byte, err error) {
+func (in *EVMInterpreter) ScanForMultiple(contract interface{}, input []byte, readOnly bool, values map[string]bool) (loc map[string][]uint64, res []byte, err error) {
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
 	defer func() { in.evm.depth-- }()
@@ -311,7 +311,7 @@ func (in *EVMInterpreter) ScanForMultiple(contract *Contract, input []byte, read
 	in.returnData = nil
 
 	// Don't bother with the execution if there's no code.
-	if len(contract.Code) == 0 {
+	if len(contract.(*Contract).Code) == 0 {
 		return nil, nil, nil
 	}
 
@@ -326,7 +326,7 @@ func (in *EVMInterpreter) ScanForMultiple(contract *Contract, input []byte, read
 		callContext = &ScopeContext{
 			Memory:   mem,
 			Stack:    stack,
-			Contract: contract,
+			Contract: contract.(*Contract),
 		}
 		// For optimisation reason we're using uint64 as the program counter.
 		// It's theoretically possible to go above 2^64. The YP defines the PC
@@ -339,7 +339,7 @@ func (in *EVMInterpreter) ScanForMultiple(contract *Contract, input []byte, read
 	defer func() {
 		returnStack(stack)
 	}()
-	contract.Input = input
+	contract.(*Contract).Input = input
 
 	// The Interpreter main run loop (contextual). This loop runs until either an
 	// explicit STOP, RETURN or SELFDESTRUCT is executed, an error occurred during
@@ -348,7 +348,7 @@ func (in *EVMInterpreter) ScanForMultiple(contract *Contract, input []byte, read
 	for {
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
-		op = contract.GetOp(pc)
+		op = contract.(*Contract).GetOp(pc)
 		operation := in.table[op]
 		// Validate stack
 		if sLen := stack.len(); sLen < operation.minStack {
@@ -466,7 +466,7 @@ type StackOverride struct {
 	OverWith map[uint64]*uint256.Int
 }
 
-func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, readOnly bool, overrides *StackOverride, dCfg *DebugCfg) (ret []byte, dRes *DebugRes, err error) {
+func (in *EVMInterpreter) RunWithOverride(contract interface{}, input []byte, readOnly bool, overrides interface{}, dCfg interface{}) (ret []byte, dRes interface{}, err error) {
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
 	defer func() { in.evm.depth-- }()
@@ -482,7 +482,7 @@ func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, read
 	in.returnData = nil
 
 	// Don't bother with the execution if there's no code.
-	if len(contract.Code) == 0 {
+	if len(contract.(*Contract).Code) == 0 {
 		return nil, nil, nil
 	}
 
@@ -494,7 +494,7 @@ func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, read
 		callContext = &ScopeContext{
 			Memory:   mem,
 			Stack:    stack,
-			Contract: contract,
+			Contract: contract.(*Contract),
 		}
 		// For optimisation reason we're using uint64 as the program counter.
 		// It's theoretically possible to go above 2^64. The YP defines the PC
@@ -504,7 +504,7 @@ func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, read
 	)
 
 	if dCfg != nil {
-		dRes = newDebugRes(dCfg)
+		dRes = newDebugRes(dCfg.(*DebugCfg))
 	}
 
 	// Don't move this deferred function, it's placed before the capturestate-deferred method,
@@ -513,7 +513,7 @@ func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, read
 	defer func() {
 		returnStack(stack)
 	}()
-	contract.Input = input
+	contract.(*Contract).Input = input
 
 	// The Interpreter main run loop (contextual). This loop runs until either an
 	// explicit STOP, RETURN or SELFDESTRUCT is executed, an error occurred during
@@ -522,14 +522,14 @@ func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, read
 	for {
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
-		op = contract.GetOp(pc)
+		op = contract.(*Contract).GetOp(pc)
 		operation := in.table[op]
 
 		// If we hit the Target Opcode
 		// Store Stack & Mem Values for that OpCode
 		if dCfg != nil {
-			if _, ok := dCfg.TargetOpCodes[op.String()]; ok {
-				dRes.Add(newCp(op.String(), pc, stack, mem, dCfg))
+			if _, ok := dCfg.(*DebugCfg).TargetOpCodes[op.String()]; ok {
+				dRes.(*DebugRes).Add(newCp(op.String(), pc, stack, mem, dCfg.(*DebugCfg)))
 			}
 		}
 
@@ -570,13 +570,13 @@ func (in *EVMInterpreter) RunWithOverride(contract *Contract, input []byte, read
 
 		// program counter matches, replace value in stack with specified value.
 		if overrides != nil {
-			if rplcValue, ok := overrides.OverWith[pc]; ok {
+			if rplcValue, ok := overrides.(*StackOverride).OverWith[pc]; ok {
 				stack.pop()
 				stack.push(rplcValue)
 			}
 		}
 		if dCfg != nil {
-			dRes.UpdateLastPcs(pc, op.String())
+			dRes.(*DebugRes).UpdateLastPcs(pc, op.String())
 		}
 		pc++
 	}

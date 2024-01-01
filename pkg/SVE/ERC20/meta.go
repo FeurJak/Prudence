@@ -28,8 +28,10 @@
 package ERC20
 
 import (
+	"fmt"
 	"math/big"
 
+	"github.com/Prudence/pkg/SVE/UNIV2"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -72,7 +74,15 @@ type ERC20Meta struct {
 	Err string
 }
 
-func (a *erc20API) FetchERC20Meta(tokenAddr common.Address) (meta *ERC20Meta, err error) {
+type uniV2API interface {
+	NewUniV2Factory(common.Address, common.Address) (interface{}, error)
+}
+
+type uniV2Factory interface {
+	GetPair(common.Address, common.Address) common.Address
+}
+
+func (a *erc20API) FetchERC20Meta(tokenAddr common.Address, baseTokenAddr common.Address, factoryAddr common.Address) (meta *ERC20Meta, err error) {
 	//snapshot := d.evm.SnapshotDB()
 	a.evm.InfGas(true)
 
@@ -87,6 +97,40 @@ func (a *erc20API) FetchERC20Meta(tokenAddr common.Address) (meta *ERC20Meta, er
 	token.meta.Decimals = token.decimals()
 	token.meta.TotalSupply = token.totalSupply()
 	token.meta.Owner = token.owner()
+
+	// Get Factory
+	univ2API := UNIV2.NewAPI(a.evm, a.logger)
+
+	v2Factory, err := univ2API.NewUniV2Factory(factoryAddr, rand_wallet)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query the Factory for the Pair (Token <-> WETH/USDC/USDT/DAI)
+	token.meta.PairAddress = v2Factory.(uniV2Factory).GetPair(tokenAddr, baseTokenAddr)
+	if token.meta.PairAddress == (common.Address{}) {
+		token.meta.Err = fmt.Sprintf("no uniswap pair found for token %s", tokenAddr.Hex())
+		return token.meta, nil
+	}
+
+	/*
+		// Get Pair
+		pair, err := NewUniV2Pair(token.meta.PairAddress, rand_wallet, d.evm)
+		if err != nil {
+			return nil, err
+		}
+
+		// Get Token 0
+		if pair.token0() == tokenAddr {
+			token.meta.TokenIsTokenA = true
+		}
+
+		// Get Reserves
+		token.meta.ReserveA, token.meta.ReserveB = pair.getReserves()
+		if token.meta.ReserveA == nil || token.meta.ReserveB == nil {
+			return token.meta, fmt.Errorf("failed to get reserves for pair %s", token.meta.PairAddress.Hex())
+		}
+	*/
 
 	return token.meta, nil
 }

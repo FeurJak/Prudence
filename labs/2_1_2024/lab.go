@@ -47,6 +47,8 @@ func runCmd(ctx *cli.Context) error {
 	}
 
 	tokenAddr := common.HexToAddress("0x1673AB963C825402596F63e3d1Ef2c2966aa5340")
+	baseTokenAddr := common.HexToAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+	factoryAddr := common.HexToAddress("0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f")
 
 	// Get Latest State
 	state, header, err := psi.CurrentStateAndHeader()
@@ -64,8 +66,10 @@ func runCmd(ctx *cli.Context) error {
 		}), state, params.MainnetChainConfig, sveVM.Config{})
 
 	// prepare ERC20 API
-	erc20API := erc20.NewAPI(evm)
-	meta, err := erc20API.FetchERC20Meta(tokenAddr)
+	erc20API := erc20.NewAPI(evm, labs.Logger)
+
+	// Fetch ERC20 Meta
+	meta, err := erc20API.FetchERC20Meta(tokenAddr, baseTokenAddr, factoryAddr)
 	if err != nil {
 		panic("failed to fetch ERC20 Meta")
 	}

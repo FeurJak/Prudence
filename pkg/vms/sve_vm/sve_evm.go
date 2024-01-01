@@ -173,3 +173,11 @@ func (evm *EVM) NewContract(callerAddr, contractAddr common.Address, value *big.
 	contract.SetCallCode(&contractAddr, evm.GetCodeHash(contractAddr), code)
 	return contract
 }
+
+func (evm *EVM) IncrementBlockNoBy(n *big.Int) {
+	evm.Context.IncrementBlockNoBy(n)
+}
+
+func (evm *EVM) BlockNumber() *big.Int {
+	return evm.Context.BlockNumber
+}

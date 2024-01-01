@@ -31,10 +31,11 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/sirupsen/logrus"
 )
 
 type ERC20API interface {
-	FetchERC20Meta(tokenAddr common.Address) (meta *ERC20Meta, err error)
+	FetchERC20Meta(tokenAddr common.Address, baseTokenAddr common.Address, factoryAddr common.Address) (meta *ERC20Meta, err error)
 }
 
 type evm interface {
@@ -44,14 +45,18 @@ type evm interface {
 	GetCode(common.Address) []byte
 	GetCodeHash(common.Address) common.Hash
 	NewContract(common.Address, common.Address, *big.Int, uint64, []byte) interface{}
+	IncrementBlockNoBy(n *big.Int)
+	BlockNumber() *big.Int
 }
 
 type erc20API struct {
-	evm evm
+	evm    evm
+	logger logrus.Ext1FieldLogger
 }
 
-func NewAPI(evm evm) ERC20API {
+func NewAPI(evm evm, logger logrus.Ext1FieldLogger) ERC20API {
 	return &erc20API{
-		evm: evm,
+		evm:    evm,
+		logger: logger,
 	}
 }
