@@ -37,6 +37,8 @@ import (
 
 type UNIV2API interface {
 	NewUniV2Factory(factoryAddr common.Address, callerAddr common.Address) (interface{}, error)
+	NewUniV2Pair(pairAddr common.Address, callerAddr common.Address) (interface{}, error)
+	NewUniv2Router(routerAddr common.Address, callerAddr common.Address) (interface{}, error)
 }
 
 type contractCode interface {

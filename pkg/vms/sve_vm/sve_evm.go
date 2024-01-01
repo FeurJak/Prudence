@@ -181,3 +181,7 @@ func (evm *EVM) IncrementBlockNoBy(n *big.Int) {
 func (evm *EVM) BlockNumber() *big.Int {
 	return evm.Context.BlockNumber
 }
+
+func (evm *EVM) Time() uint64 {
+	return evm.Context.Time
+}

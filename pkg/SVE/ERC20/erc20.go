@@ -55,17 +55,18 @@ type debugCfg struct {
 	LastPcsLen    int
 }
 
-type checkPoint struct {
-	OpCode string
-	pc     uint64
-	Stack  []uint256.Int
-	mem    []byte
+type checkPoint interface {
+	StackValueAt(index int) *uint256.Int
 }
-type debugRes struct {
-	CheckPoints []checkPoint
-	LastPcs     []uint64
-	LastOps     []string
-	lastPcsLen  int
+
+type checkPoints interface {
+	Len() int
+	LastVal() interface{}
+	ValueAt(index int) interface{}
+}
+
+type debugRes interface {
+	CheckPoints() interface{}
 }
 
 type evmInterpreter interface {
@@ -282,6 +283,20 @@ func (t *erc20Token) ScanForAllowance(owner common.Address, spender common.Addre
 	return 0, nil, "", fmt.Errorf("failed to encode balanceOf")
 }
 
+func (t *erc20Token) TransferFrom(source common.Address, target common.Address, amount *big.Int) (succes bool, err error) {
+	if input, err := sveCommon.EncodeMethIn(t.meth, "transferFrom", []interface{}{source, target, amount}); err == nil {
+		if ret, _, err := t.interpreter.LiteRun(t.tokenContract, input, false); err == nil {
+			if out, err := sveCommon.DecodeMethOut(t.meth, "transferFrom", ret); err == nil {
+				return out[0].(bool), nil
+			}
+		} else {
+			reason, _ := abi.UnpackRevert(ret)
+			return false, errors.Wrap(err, reason)
+		}
+	}
+	return false, err
+}
+
 func (t *erc20Token) TransferFromAndScan(source common.Address, target common.Address, amount *big.Int, values map[string]bool) (locations map[string][]uint64, reason string, err error) {
 	if input, err := sveCommon.EncodeMethIn(t.meth, "transferFrom", []interface{}{source, target, amount}); err == nil {
 		locations, res, err := t.interpreter.ScanForMultiple(t.tokenContract, input, false, values)
@@ -319,16 +334,22 @@ func (t *erc20Token) detectBlockDelay(source common.Address, target common.Addre
 	// We only care about the last checkpoint.
 	// if the revert was triggered, we accept the maxTxAmount to be the other value in the stack.
 	t.meta.BlockDelay = big.NewInt(0)
-	for _, cp := range dRes.(*debugRes).CheckPoints {
-		val_a := cp.Stack[0].ToBig()
-		val_b := cp.Stack[1].ToBig()
+	cps := dRes.(debugRes).CheckPoints().(checkPoints)
+	len := cps.Len()
+
+	for i := 0; i < len; i++ {
+		cp := cps.ValueAt(i).(checkPoint)
+		val_a := cp.StackValueAt(0).ToBig()
+		val_b := cp.StackValueAt(1).ToBig()
 		// blocknumber was used in a require condition somewhere..
 		if val_a.Cmp(t.evm.BlockNumber()) == 0 || val_b.Cmp(t.evm.BlockNumber()) == 0 {
 			t.meta.BlockDelayEnabled = true
 			t.meta.BlockDelay = big.NewInt(2)
 			return nil
 		}
+
 	}
+
 	return nil
 }
 
@@ -377,9 +398,11 @@ func (t *erc20Token) getMaxTxAmount(source common.Address, target common.Address
 	}
 
 	// We only care about the last checkpoint.
+	checkpoints := dRes.(debugRes).CheckPoints().(checkPoints)
+
+	last := checkpoints.LastVal().(checkPoint)
 	// if the revert was triggered, we accept the maxTxAmount to be the other value in the stack.
-	last := dRes.(*debugRes).CheckPoints[len(dRes.(*debugRes).CheckPoints)-1]
-	potentialMax := last.Stack[1].ToBig()
+	potentialMax := last.StackValueAt(1).ToBig()
 
 	//We only want to set this as the maxTxAmount when its not larger than the TotalSupply
 	if potentialMax.Cmp(t.meta.TotalSupply) < 0 {
@@ -434,9 +457,11 @@ func (t *erc20Token) getMaxWallet(source common.Address, target common.Address) 
 	}
 
 	// We only care about the last checkpoint.
-	last := dRes.(*debugRes).CheckPoints[len(dRes.(*debugRes).CheckPoints)-1]
+	checkpoints := dRes.(debugRes).CheckPoints().(checkPoints)
+
+	last := checkpoints.LastVal().(checkPoint)
 	// if the revert was triggered, we accept the MaxWalletSize to be the other value in the stack.
-	maxWallet := last.Stack[1].ToBig()
+	maxWallet := last.StackValueAt(1).ToBig()
 
 	//only set the maxWalletSize when its less than totalSupply
 	if maxWallet.Cmp(t.meta.TotalSupply) < 0 {

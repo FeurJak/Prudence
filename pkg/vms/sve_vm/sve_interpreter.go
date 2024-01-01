@@ -421,33 +421,55 @@ type CheckPoint struct {
 	mem    []byte
 }
 
+func (c CheckPoint) StackValueAt(index int) *uint256.Int {
+	return &c.Stack[index]
+}
+
+type checkpoints []CheckPoint
+
+func (c checkpoints) Len() int {
+	return len(c)
+}
+
+func (c checkpoints) ValueAt(index int) interface{} {
+	return (c)[index]
+}
+
+func (c checkpoints) LastVal() interface{} {
+	return (c)[len(c)-1]
+}
+
 type DebugRes struct {
-	CheckPoints []CheckPoint
-	LastPcs     []uint64
-	LastOps     []string
+	checkPoints checkpoints
+	lastPcs     []uint64
+	lastOps     []string
 	lastPcsLen  int
 }
 
 func newDebugRes(cfg *DebugCfg) *DebugRes {
 	return &DebugRes{
-		CheckPoints: make([]CheckPoint, 0),
-		LastPcs:     make([]uint64, cfg.LastPcsLen),
-		LastOps:     make([]string, cfg.LastPcsLen),
+		checkPoints: make(checkpoints, 0),
+		lastPcs:     make([]uint64, cfg.LastPcsLen),
+		lastOps:     make([]string, cfg.LastPcsLen),
 		lastPcsLen:  cfg.LastPcsLen,
 	}
 }
 
+func (d *DebugRes) CheckPoints() interface{} {
+	return d.checkPoints
+}
+
 func (d *DebugRes) Add(cp *CheckPoint) {
-	d.CheckPoints = append(d.CheckPoints, *cp)
+	d.checkPoints = append(d.checkPoints, *cp)
 }
 
 func (d *DebugRes) UpdateLastPcs(pc uint64, op string) {
-	if len(d.LastPcs) > d.lastPcsLen {
-		d.LastPcs = d.LastPcs[1:]
-		d.LastOps = d.LastOps[1:]
+	if len(d.lastPcs) > d.lastPcsLen {
+		d.lastPcs = d.lastPcs[1:]
+		d.lastOps = d.lastOps[1:]
 	}
-	d.LastPcs = append(d.LastPcs, pc)
-	d.LastOps = append(d.LastOps, op)
+	d.lastPcs = append(d.lastPcs, pc)
+	d.lastOps = append(d.lastOps, op)
 }
 
 func newCp(opcCode string, pc uint64, stack *Stack, mem *Memory, cfg *DebugCfg) (cp *CheckPoint) {
