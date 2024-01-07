@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	pDb "github.com/Prudence/pkg/precog/core/db"
+	pDb "github.com/FeurJak/Prudence/pkg/precog/core/db"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"

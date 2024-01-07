@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	labs "github.com/Prudence/labs"
-	precog "github.com/Prudence/pkg/precog"
+	labs "github.com/FeurJak/Prudence/labs"
+	precog "github.com/FeurJak/Prudence/pkg/precog"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/sirupsen/logrus"

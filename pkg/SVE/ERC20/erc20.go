@@ -32,9 +32,9 @@ import (
 	"math/big"
 	"strings"
 
-	sveCommon "github.com/Prudence/pkg/SVE/common"
-	"github.com/Prudence/pkg/abi"
-	vm "github.com/Prudence/pkg/vms/sve_vm"
+	sveCommon "github.com/FeurJak/Prudence/pkg/SVE/common"
+	"github.com/FeurJak/Prudence/pkg/abi"
+	vm "github.com/FeurJak/Prudence/pkg/vms/sve_vm"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/holiman/uint256"
 	"github.com/pkg/errors"

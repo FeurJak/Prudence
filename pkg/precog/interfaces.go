@@ -1,7 +1,7 @@
 package precog
 
 import (
-	"github.com/Prudence/pkg/precog/core/network/txpool"
+	"github.com/FeurJak/Prudence/pkg/precog/core/network/txpool"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"

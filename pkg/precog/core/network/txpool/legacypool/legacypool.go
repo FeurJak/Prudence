@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 
-	txpool "github.com/Prudence/pkg/precog/core/network/txpool"
+	txpool "github.com/FeurJak/Prudence/pkg/precog/core/network/txpool"
 )
 
 const (

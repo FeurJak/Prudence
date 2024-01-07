@@ -4,13 +4,13 @@ import (
 	"math/big"
 	"time"
 
-	labs "github.com/Prudence/labs"
+	labs "github.com/FeurJak/Prudence/labs"
 	"github.com/sirupsen/logrus"
 
-	erc20 "github.com/Prudence/pkg/SVE/ERC20"
-	"github.com/Prudence/pkg/SVE/UNIV2"
-	precog "github.com/Prudence/pkg/precog"
-	sveVM "github.com/Prudence/pkg/vms/sve_vm"
+	erc20 "github.com/FeurJak/Prudence/pkg/SVE/ERC20"
+	"github.com/FeurJak/Prudence/pkg/SVE/UNIV2"
+	precog "github.com/FeurJak/Prudence/pkg/precog"
+	sveVM "github.com/FeurJak/Prudence/pkg/vms/sve_vm"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/params"

@@ -7,9 +7,9 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/Prudence/pkg/geth_cli"
+	"github.com/FeurJak/Prudence/pkg/geth_cli"
 
-	"github.com/Prudence/pkg/precog/core/network/protocols/eth"
+	"github.com/FeurJak/Prudence/pkg/precog/core/network/protocols/eth"
 
 	"github.com/ethereum/go-ethereum/core/forkid"
 	"github.com/ethereum/go-ethereum/core/types"

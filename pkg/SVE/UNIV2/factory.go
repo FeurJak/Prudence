@@ -31,8 +31,8 @@ import (
 	"fmt"
 	"math/big"
 
-	sveCommon "github.com/Prudence/pkg/SVE/common"
-	"github.com/Prudence/pkg/abi"
+	sveCommon "github.com/FeurJak/Prudence/pkg/SVE/common"
+	"github.com/FeurJak/Prudence/pkg/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
 
