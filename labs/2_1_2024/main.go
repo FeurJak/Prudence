@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	labs "github.com/Prudence/labs"
+	labs "github.com/FeurJak/Prudence/labs"
 
 	"github.com/urfave/cli/v2"
 )

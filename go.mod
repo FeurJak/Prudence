@@ -1,4 +1,4 @@
-module github.com/Prudence
+module github.com/FeurJak/Prudence
 
 go 1.21.5
 

@@ -8,7 +8,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/Prudence/pkg/precog/core/network/protocols/eth"
+	"github.com/FeurJak/Prudence/pkg/precog/core/network/protocols/eth"
 
 	"github.com/ethereum/go-ethereum/eth/protocols/snap"
 )

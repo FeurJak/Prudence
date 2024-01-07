@@ -30,7 +30,7 @@ package common
 import (
 	"fmt"
 
-	"github.com/Prudence/pkg/abi"
+	"github.com/FeurJak/Prudence/pkg/abi"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
