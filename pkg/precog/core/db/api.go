@@ -4,19 +4,32 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
+	lru "github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 type API struct {
-	db      ethdb.Database
-	stateDb state.Database
+	db            ethdb.Database
+	stateDb       state.Database
+	chainConfig   *params.ChainConfig
+	receiptsCache *lru.Cache[common.Hash, []*types.Receipt]
 }
 
-func NewAPI(db ethdb.Database, stateDb state.Database) *API {
-	return &API{db: db, stateDb: stateDb}
+const (
+	receiptsCacheLimit = 32
+)
+
+func NewAPI(db ethdb.Database, stateDb state.Database, chainConfig *params.ChainConfig) *API {
+	return &API{
+		db:            db,
+		stateDb:       stateDb,
+		chainConfig:   chainConfig,
+		receiptsCache: lru.NewCache[common.Hash, []*types.Receipt](receiptsCacheLimit),
+	}
 }
 
 func (a *API) GetHead() (head common.Hash, err error) {
@@ -41,6 +54,52 @@ func (a *API) GetBlock(hash common.Hash, number uint64) (block *types.Block, err
 		return nil, fmt.Errorf("unable to get block from db")
 	}
 	return block, nil
+}
+
+func (a *API) GetBlockByNumber(number uint64) (block *types.Block, err error) {
+	hash := rawdb.ReadCanonicalHash(a.db, number)
+	if hash == (common.Hash{}) {
+		return nil, fmt.Errorf("unable to get canonical hash for number")
+	}
+	return a.GetBlock(hash, number)
+}
+
+func (a *API) GetReceiptsByHash(hash common.Hash) types.Receipts {
+	if receipts, ok := a.receiptsCache.Get(hash); ok {
+		return receipts
+	}
+	number := rawdb.ReadHeaderNumber(a.db, hash)
+	if number == nil {
+		return nil
+	}
+	block, _ := a.GetBlock(hash, *number)
+	if block == nil {
+		return nil
+	}
+	header := block.Header()
+	receipts := rawdb.ReadReceipts(a.db, hash, *number, header.Time, a.chainConfig)
+	if receipts == nil {
+		return nil
+	}
+	a.receiptsCache.Add(hash, receipts)
+	return receipts
+
+}
+
+func (a *API) GetReceiptsByNumber(number uint64) (receipts types.Receipts, err error) {
+	hash := rawdb.ReadCanonicalHash(a.db, number)
+	if hash == (common.Hash{}) {
+		return nil, fmt.Errorf("unable to get canonical hash for number")
+	}
+	return a.GetReceiptsByHash(hash), nil
+}
+
+func (a *API) GetLatestBlockNumber() (number *uint64, err error) {
+	head, err := a.GetHead()
+	if err != nil {
+		return nil, err
+	}
+	return a.GetHeaderNumber(head)
 }
 
 func (a *API) GetLatestBlock() (block *types.Block, err error) {

@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -35,7 +36,7 @@ func (b *Backend) initStateDb() (err error) {
 
 	stateDb = pDb.GetStateDb(b.conf.State.TrieCacheConf, db)
 
-	b.db = pDb.NewAPI(db, stateDb)
+	b.db = pDb.NewAPI(db, stateDb, params.MainnetChainConfig)
 
 	block, err := b.db.GetLatestBlock()
 	if err != nil {
@@ -108,4 +109,17 @@ func (b *Backend) GetHeader(hash common.Hash, number uint64) *types.Header {
 		return nil
 	}
 	return block.Header()
+}
+
+func (b *Backend) GetBlockByNumber(number uint64) *types.Block {
+	block, _ := b.db.GetBlockByNumber(number)
+	return block
+}
+
+func (b *Backend) GetReceiptsByHash(hash common.Hash) types.Receipts {
+	return b.db.GetReceiptsByHash(hash)
+}
+
+func (b *Backend) GetReceiptsByNumber(number uint64) (receipts types.Receipts, err error) {
+	return b.db.GetReceiptsByNumber(number)
 }

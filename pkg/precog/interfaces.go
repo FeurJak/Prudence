@@ -19,6 +19,10 @@ type dbAPI interface {
 	GetLatestBlock() (block *types.Block, err error)
 	StateAt(root common.Hash) (*state.StateDB, error)
 	EthDB() ethdb.Database
+	GetBlockByNumber(number uint64) (block *types.Block, err error)
+	GetReceiptsByHash(hash common.Hash) types.Receipts
+	GetReceiptsByNumber(number uint64) (receipts types.Receipts, err error)
+	GetLatestBlockNumber() (number *uint64, err error)
 }
 
 // txPool defines the methods needed from a transaction pool implementation to
@@ -51,4 +55,8 @@ type API interface {
 	SubToPendingTx(ch chan<- core.NewTxsEvent) event.Subscription
 	CurrentStateAndHeader() (stateDb *state.StateDB, header *types.Header, err error)
 	GetHeader(common.Hash, uint64) *types.Header
+	GetBlockByNumber(number uint64) (block *types.Block)
+	GetReceiptsByHash(hash common.Hash) types.Receipts
+	GetReceiptsByNumber(number uint64) (receipts types.Receipts, err error)
+	GetLatestBlockNumber() (number *uint64, err error)
 }

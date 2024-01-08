@@ -41,6 +41,22 @@ func (a *api) GetHeader(hash common.Hash, number uint64) *types.Header {
 	return a.b.GetHeader(hash, number)
 }
 
+func (a *api) GetBlockByNumber(number uint64) *types.Block {
+	return a.b.GetBlockByNumber(number)
+}
+
+func (a *api) GetReceiptsByHash(hash common.Hash) types.Receipts {
+	return a.b.GetReceiptsByHash(hash)
+}
+
+func (a *api) GetReceiptsByNumber(number uint64) (receipts types.Receipts, err error) {
+	return a.b.GetReceiptsByNumber(number)
+}
+
+func (a *api) GetLatestBlockNumber() (number *uint64, err error) {
+	return a.b.GetLatestBlockNumber()
+}
+
 func (a *api) Engine() consensus.Engine {
 	return a.b.engine
 }

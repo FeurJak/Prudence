@@ -80,6 +80,7 @@ func NewBackend(logger logrus.Ext1FieldLogger, conf *BackendConfig) (a API, err 
 	b := &Backend{
 		logger: logger,
 		conf:   conf,
+		peers:  newPeerSet(),
 	}
 	// init geth cli interface to a geth node
 	if err = b.initGethCli(); err != nil {
@@ -92,7 +93,7 @@ func NewBackend(logger logrus.Ext1FieldLogger, conf *BackendConfig) (a API, err 
 
 	// P2P required, init txpool & p2p server.
 	if !conf.NoP2P {
-		b.peers = newPeerSet()
+
 		if err = b.initProtos(); err != nil {
 			return nil, fmt.Errorf("failed to init protocols: %s", err)
 		}
@@ -141,10 +142,10 @@ func (b *Backend) updateLatestHeader(ctx context.Context) error {
 		case head := <-headc:
 			b.lastHeadMtx.Lock()
 			b.logger.WithFields(logrus.Fields{
-				"Hash":    head.Hash(),
-				"Number":  head.Number,
-				"peers":   b.peers.count(),
-				"mempool": len(b.txPool.Pending(true)),
+				"Hash":   head.Hash(),
+				"Number": head.Number,
+				"peers":  b.peers.count(),
+				//"mempool": len(b.txPool.Pending(true)),
 			}).Info("Updated Head")
 			b.lastHead = head
 			b.lastHeadMtx.Unlock()
@@ -227,4 +228,8 @@ func (b *Backend) GetDificulty() *big.Int {
 
 func (b *Backend) Engine() consensus.Engine {
 	return b.engine
+}
+
+func (b *Backend) GetLatestBlockNumber() (number *uint64, err error) {
+	return b.db.GetLatestBlockNumber()
 }
