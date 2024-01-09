@@ -94,7 +94,6 @@ func runCmd(ctx *cli.Context) error {
 
 	block := uint64(18958267)
 	erc20Addr := common.HexToAddress("0x0f22e273Ed4b0E9289Bc3b663F1bc66e16C20238")
-
 	env := new(LabEnv)
 	err := env.InitLabEnv(ctx.Args().First(), erc20Addr.Hex())
 	if err != nil {
