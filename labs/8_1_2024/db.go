@@ -8,6 +8,7 @@ import (
 const (
 	txEventTbl_prefix = "tx_event"
 	accTbl_prefix     = "account"
+	accRegTbl_prefix  = "account_registry"
 )
 
 func NewPebbleDBDatabase(file string, cache int, handles int, namespace string, readonly, ephemeral bool) (ethdb.KeyValueStore, error) {

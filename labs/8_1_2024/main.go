@@ -20,7 +20,7 @@ import (
 var lab = labs.NewLab("lab_8_1_2024")
 
 func init() {
-	lab.Commands = []*cli.Command{runCommand}
+	lab.Commands = []*cli.Command{runCommand, accCommand}
 }
 
 func main() {
