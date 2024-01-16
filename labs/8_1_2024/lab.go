@@ -68,7 +68,7 @@ func (env *LabEnv) InitLabEnv(connStr string, erc20Addr string) (err error) {
 }
 
 func accCmd(ctx *cli.Context) error {
-	erc20Addr := common.HexToAddress("0x0f22e273Ed4b0E9289Bc3b663F1bc66e16C20238")
+	erc20Addr := common.HexToAddress("0x6349ae2681f495fe1d737e49b8f402e4577e9b4d")
 
 	env := new(LabEnv)
 	err := env.InitLabEnv(ctx.Args().First(), erc20Addr.Hex())
@@ -92,8 +92,8 @@ func accCmd(ctx *cli.Context) error {
 
 func runCmd(ctx *cli.Context) error {
 
-	block := uint64(18958267)
-	erc20Addr := common.HexToAddress("0x0f22e273Ed4b0E9289Bc3b663F1bc66e16C20238")
+	block := uint64(18952399)
+	erc20Addr := common.HexToAddress("0x6349ae2681f495fe1d737e49b8f402e4577e9b4d")
 	env := new(LabEnv)
 	err := env.InitLabEnv(ctx.Args().First(), erc20Addr.Hex())
 	if err != nil {
